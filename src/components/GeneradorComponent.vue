@@ -1,66 +1,83 @@
 <script setup lang="ts">
-  import { ref, reactive, watch } from 'vue';
+interface discordData {
+  task: string
+  commitMessage: string
+  commitHash: string
+  side: string
+  type: string
+}
 
-  const discord = ref('...');
-  const redmine = ref('...');
-  const copiedDiscord = ref(false);
-  const copiedRedmine = ref(false);
+interface redmineData {
+  commitHash: string
+  side: string
+}
 
-  const redmineData = reactive({});
-  const discordData = reactive({});
+import { ref, reactive, watch } from 'vue'
 
-  function onTaskChange(e: input) {
-    discordData.task = e.target.value;
-  }
+const discord = ref('...')
+const redmine = ref('...')
+const copiedDiscord = ref(false)
+const copiedRedmine = ref(false)
 
-  function onCommitMessageChange(e: input) {
-    discordData.commitMessage = e.target.value;
-  }
+const redmineData: Partial<redmineData> = reactive({})
+const discordData: Partial<discordData> = reactive({})
 
-  function onCommitHashChange(e: input) {
-    discordData.commitHash = e.target.value;
-    redmineData.commitHash = e.target.value;
-  }
+function onTaskChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  discordData.task = target.value
+}
 
-  function onBackOrFrontChange(e: change) {
-    discordData.side = e.target.value;
-    redmineData.side = e.target.value;
-  }
+function onCommitMessageChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  discordData.commitMessage = target.value
+}
 
-  function onTaskOrBugChange(e: change) {
-    discordData.type = e.target.value;
-  }
+function onCommitHashChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  discordData.commitHash = target.value
+  redmineData.commitHash = target.value
+}
 
-  async function copy(message, which) {
-    await navigator.clipboard.writeText(message);
-    switch (which) {
+function onBackOrFrontChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  discordData.side = target.value
+  redmineData.side = target.value
+}
+
+function onTaskOrBugChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  discordData.type = target.value
+}
+
+async function copy(message: string, which: 'discord' | 'redmine') {
+  await navigator.clipboard.writeText(message)
+  switch (which) {
     case 'discord':
-      copiedDiscord.value = true;
+      copiedDiscord.value = true
       setTimeout(() => {
-        copiedDiscord.value = false;
-      }, 2000);
-      break;
+        copiedDiscord.value = false
+      }, 2000)
+      break
     case 'redmine':
-      copiedRedmine.value = true;
+      copiedRedmine.value = true
       setTimeout(() => {
-        copiedRedmine.value = false;
-      }, 2000);
-      break;
-    }
+        copiedRedmine.value = false
+      }, 2000)
+      break
   }
+}
 
-  function onReset() {
-    window.location.reload();
-  }
+function onReset() {
+  window.location.reload()
+}
 
-  watch(discordData, (newData) => {
-    discord.value = `Push to dev [AMG-Facturador-${newData.side}] ${newData.type} #${newData.task} - ${newData.commitMessage}\nCommit: ${newData.commitHash}`;
-  });
+watch(discordData, (newData) => {
+  discord.value = `Push to dev [AMG-Facturador-${newData.side}] ${newData.type} #${newData.task} - ${newData.commitMessage}\nCommit: ${newData.commitHash}`
+})
 
-  watch(redmineData, (newData) => {
-    redmine.value = `Commit ${newData.side}: ${newData.commitHash}`;
-  });
-
+watch(redmineData, (newData) => {
+  redmine.value = `Commit ${newData.side}: ${newData.commitHash}`
+})
 </script>
 
 <template>
@@ -77,26 +94,42 @@
       </label>
       <label>
         Hash del commit:
-        <input type="text" name="CommitHash" @input="onCommitHashChange"/>
+        <input type="text" name="CommitHash" @input="onCommitHashChange" />
       </label>
       <label>
         Back o Front?
-        <label>Back<input type="radio" value="Back" name="BackOrFront" @change="onBackOrFrontChange" /></label>
-        <label>Front<input type="radio" value="Front" name="BackOrFront" @change="onBackOrFrontChange" /></label>
+        <label
+          >Back<input type="radio" value="Back" name="BackOrFront" @change="onBackOrFrontChange"
+        /></label>
+        <label
+          >Front<input type="radio" value="Front" name="BackOrFront" @change="onBackOrFrontChange"
+        /></label>
       </label>
       <label>
         Task o bug?
-        <label>Task<input type="radio" value="Task" name="TaskOrBug" @change="onTaskOrBugChange" /></label>
-        <label>Bug<input type="radio" value="Bug" name="TaskOrBug" @change="onTaskOrBugChange" /></label>
+        <label
+          >Task<input type="radio" value="Task" name="TaskOrBug" @change="onTaskOrBugChange"
+        /></label>
+        <label
+          >Bug<input type="radio" value="Bug" name="TaskOrBug" @change="onTaskOrBugChange"
+        /></label>
       </label>
 
-      <div class="generado" :class="{'copied-effect': copiedDiscord}" @click="copy(discord, 'discord')">
+      <div
+        class="generado"
+        :class="{ 'copied-effect': copiedDiscord }"
+        @click="copy(discord, 'discord')"
+      >
         <div>Discord:</div>
-        <div>{{discord}}</div>
+        <div>{{ discord }}</div>
       </div>
-      <div class="generado" :class="{'copied-effect': copiedRedmine}" @click="copy(redmine, 'redmine')">
+      <div
+        class="generado"
+        :class="{ 'copied-effect': copiedRedmine }"
+        @click="copy(redmine, 'redmine')"
+      >
         <div>Redmine:</div>
-        <div>{{redmine}}</div>
+        <div>{{ redmine }}</div>
       </div>
       <button type="button" @click="onReset">Reset</button>
     </div>
@@ -104,51 +137,51 @@
 </template>
 
 <style scoped>
-  .container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
-  .form {
-    padding: 20px;
-    background-color: #333;
-    border-radius: 0.4rem;
-    display: flex;
-    flex-direction: column;
-    width: 630px;
-  }
+.form {
+  padding: 20px;
+  background-color: #333;
+  border-radius: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  width: 630px;
+}
 
-  label {
-    margin: 0.5rem 0;
-  }
+label {
+  margin: 0.5rem 0;
+}
 
-  label>label {
-    display: block;
-    margin-left: 20px;
-  }
+label > label {
+  display: block;
+  margin-left: 20px;
+}
 
-  label>label>input {
-    margin-left: 5px;
-  }
+label > label > input {
+  margin-left: 5px;
+}
 
-  .generado {
-    padding: 25px;
-    border: 1px solid #fafafa;
-    border-radius: 1rem;
-  }
+.generado {
+  padding: 25px;
+  border: 1px solid #fafafa;
+  border-radius: 1rem;
+}
 
-  .generado>div {
-    white-space: pre-line;
-  }
+.generado > div {
+  white-space: pre-line;
+}
 
-  .generado:last-of-type {
-    margin-top: 10px;
-    margin-bottom: 20px;
-  }
+.generado:last-of-type {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
 
-  .copied-effect {
-    border-color:#4CAF50;
-  }
+.copied-effect {
+  border-color: #4caf50;
+}
 </style>
