@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import Generador from './components/Generador.vue'
+import GeneradorComponent from './components/GeneradorComponent.vue'
 </script>
 
 <template>
   <main>
-    <Generador />
+    <GeneradorComponent />
   </main>
 </template>
 
